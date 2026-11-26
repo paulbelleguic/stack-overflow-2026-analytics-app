@@ -1,0 +1,19 @@
+{
+  "year": 2026,
+  "source": "Stack Overflow Developer Survey 2026",
+  "licence": "ODbL 1.0 (data); DbCL 1.0 (contents)",
+  "archive": "https://github.com/StackExchange/Survey/tree/main/packages/archive/2026",
+  "questionnaire": "https://github.com/StackExchange/Survey/tree/releases/2026/questions",
+  "files": {
+    "survey_results_public.csv": {
+      "url": "https://media.githubusercontent.com/media/StackExchange/Survey/main/packages/archive/2026/survey_results_public.csv",
+      "bytes": 122407316,
+      "sha256": "ad520b4d5d71f240141e63f0d6f81a3b1898cbdc69efe9ea985496533b15fc2c"
+    },
+    "survey_results_schema.csv": {
+      "url": "https://media.githubusercontent.com/media/StackExchange/Survey/main/packages/archive/2026/survey_results_schema.csv",
+      "bytes": 93937,
+      "sha256": "0892967cacdac5cdd1a7668de6f5edd8947bcc0ab204b7ec3e2d81084eb00b63"
+    }
+  }
+}
