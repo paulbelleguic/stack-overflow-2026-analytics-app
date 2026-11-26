@@ -5,7 +5,7 @@ from src.data import ensure_data, load_responses, load_schema
 from src.population import prepare_population
 
 
-@st.cache_data(show_spinner="Loading and preparing verified 2026 data…")
+@st.cache_data(show_spinner="Loading and preparing 2026 data…")
 def get_population():
     ensure_data()
     return prepare_population(load_responses())

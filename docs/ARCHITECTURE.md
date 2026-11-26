@@ -1,62 +1,52 @@
-# Technical architecture
+# Technical architecture — common core
 
-## One app, shared calculations, five owners
+## Data flow
 
-`app.py` is the only entry point. Its sidebar chooses one of six view modules; these are not six separate apps. Navigation uses a simple radio control. `views/` contains Streamlit presentation only; calculations in `src/analysis/` have no Streamlit dependency.
-
-```mermaid
-flowchart TD
-    S[Official 2026 CSV files and source manifest] --> D[src/data.py: ensure_data and load_responses]
-    D --> P[src/population.py: prepare_population]
-    P --> C[src/cache.py: cached French population]
-    C --> F[src/filters.py: shared role and experience filters]
-    F --> B[views/dashboard.py]
-    F --> A[Five axis views and their own employment filters]
-    A --> L[src/analysis/axis_1.py to axis_5.py]
-    B --> T[src/analysis/common.py]
-    L --> T
-    T --> U[src/ui.py: figures, captions and question notes]
-    Q[st.session_state: navigation and filter choices] --> F
-    Q --> A
+```text
+Official 2026 response CSV and schema
+    -> src/data.py: ensure_data, load_responses, load_schema
+    -> src/population.py: prepare_population
+    -> src/cache.py: cached public population and schema
+    -> src/ui.py: common_population and common controls
+    -> src/filters.py: filtered population
+    -> src/analysis/common.py: rates and frequency tables
+    -> views/dashboard.py and src/ui.py: main message, charts and captions
 ```
 
-## Features, files and functions
+`app.py` runs the common dashboard. The analysis and filtering functions have no Streamlit dependency. UI controls, chart display and cache decorators are separate from those calculations.
 
-| Feature | Main files and functions |
+## Features and functions
+
+| Feature | Location |
 |---|---|
-| Verified download | `config/sources.json`; `src/data.py: ensure_data`, `file_hash`; CLI `scripts/download_data.py` |
-| One row per response | `src/data.py: load_responses`, checking unique `ResponseId` |
-| Scope and derived fields | `src/population.py: prepare_population`, `ai_status` |
-| Shared loading cache | `src/cache.py: get_population`, `get_schema` |
-| Filtering | `src/filters.py: filter_population`; common widgets in `app.py`; `src/ui.py: local_population` |
-| Navigation | `app.py: pages` registry and sidebar radio |
-| Main message and indicators | `views/dashboard.py: render`; `known_rate`, `frequency_table` |
-| Per-axis calculations | `src/analysis/axis_N.py: summarise` |
-| Per-axis views | `views/axis_N.py: render` |
-| Consistent figures | `src/ui.py: draw_frequency`, `draw_adoption`, `population_caption`, `question_note` |
-| Reproducible explorations | `notebooks/00_shared_audit.ipynb`, `01` to `05` owner notebooks |
+| Download absent data, explicit errors and header checks | `src/data.py: ensure_data`; `scripts/download_data.py` |
+| One row per respondent and source reading | `src/data.py: load_responses`, `load_schema` |
+| France and coding as a primary job | `src/population.py: prepare_population` |
+| AI-use and experience variables | `src/population.py: ai_status`, `prepare_population` |
+| Shared filters | `src/filters.py: filter_population`; `src/ui.py: common_population` |
+| Shared frequencies and rates | `src/analysis/common.py: frequency_table`, `known_rate` |
+| Main dashboard | `views/dashboard.py: render` |
+| Figure population and question | `src/ui.py: population_caption`, `draw_frequency`, `question_note` |
+| Source coverage | `scripts/audit_data.py`; `notebooks/00_shared_audit.ipynb` |
 
-## Data flow and calculation rules
+## Cache
 
-1. The downloader checks existing files or downloads `.part` files, verifies size and SHA-256, then renames successful downloads. Failures are explicit; a Git LFS pointer is not accepted as CSV data.
-2. The CSV reader validates unique 2026 response IDs. Raw files remain in ignored `data/raw/2026/`.
-3. Preparation keeps France and coding as the primary part of the job, without excluding missing AI answers. It derives a nullable AI-use indicator and experience groups.
-4. Shared filters reduce the 628 eligible records. Empty selections mean no restriction. Selected experience groups exclude unknown experience; the resulting count is visible.
-5. Each axis can further restrict employment status. Its view selector chooses a verified source field.
-6. Analysis functions compute answer-level denominators and frequencies. UI helpers render figures and attach population captions both below and inside images.
+`@st.cache_data` caches the prepared public-data population and source schema. The expensive reading and initial preparation happen once per cache entry. Callers receive copies. Filtering and small summaries are recomputed and are not separately cached. No private session choices or resources such as connections are cached.
 
-## Cache versus session state
+After changing preparation code or replacing the CSV, use Clear cache in the app menu or restart the server. A cached wrapper does not necessarily notice changes in imported helpers.
 
-`@st.cache_data` stores the prepared public-data population and the schema at server scope. Each caller receives a copy. Reading and preparing 123 MB is the expensive step; role filtering and small summaries are recomputed rather than creating one cache entry for every combination. No database connection, model or private user object is cached.
+## Session state
 
-After changing the source manifest, data files or indirectly called preparation functions, use **Clear cache** in Streamlit or restart the server. Changing an imported helper alone need not invalidate the wrapper's cache.
+The common controls use `global_roles` and `global_experience` as widget keys with `persist_state="session"`, available in pinned Streamlit 1.67.0. These choices are per browser session. Empty selections mean all eligible values, including unknowns. Selecting experience groups excludes unknown experience, and the new count is shown.
 
-Session state contains `navigation`, `global_roles`, `global_experience`, `axis_N_employment` and `axis_N_view`. Widgets have unique keys and `persist_state="session"`, supported by the pinned Streamlit 1.67.0. Local choices survive switching views and never overwrite another axis's choices. A fresh browser session has its own filters; public cached data is shared. A page reload can reset session state. Raw responses and calculated results are not manually stored in session state.
+The future axis pages must use their own keys such as `axis_1_role` so choices cannot overwrite one another. They must reuse `common_population()` rather than read a second copy of the data. Raw responses are not manually stored in session state.
 
-## Small samples and missing values
+## Future axes — not preimplemented
 
-No chart is shown with fewer than 20 answered responses. Profile rates are suppressed for groups below 20, while their counts remain in the table. This is a practical initial rule, not a statistical guarantee. Missing values never become non-use; conditional question skips are not interpreted as negative answers. Used, desired and workflow-status columns keep separate denominators.
+Each owner creates `axes/axis_N/` with their exploration notebook, pure calculation module and `render(population)` view. A small, uniquely named entry in `pages/` calls the common population helper and that owner's render function. Native Streamlit pages provide navigation without merging five separate applications or editing a shared page registry for every axis.
 
-## Boundaries
+All owners branch from the reviewed common `main`, work on their own files, then merge completed contributions back into `main`. The combined app must be checked before deployment. Each future figure must include the year, scope, filters, selected count and actual answer denominator.
 
-2025 is not loaded. No authentication or private staff data is handled. No inference of causal impact or representative market share is implemented. A deployment URL is a possible later bonus, not an existing deliverable.
+## Deliberate limits
+
+No individual axis calculations or charts, automated tests, GitHub Actions workflow, SHA-256 verification or deployment are included in this shared-core version. 2025 remains disabled until an explicit harmonisation is reviewed. Manual checking and explaining all retained code remain required.

@@ -5,8 +5,9 @@ import textwrap
 import matplotlib.pyplot as plt
 import streamlit as st
 
-from src.cache import get_schema
+from src.cache import get_schema, get_population
 from src.filters import filter_population
+from src.population import EXPERIENCE_LABELS
 
 ACCENT = "#226B80"
 GREY = "#C7CDD0"
@@ -21,22 +22,6 @@ def scope_text():
         f"Roles: {', '.join(roles) if roles else 'all, including unanswered'} · "
         f"Experience: {', '.join(experience) if experience else 'all, including unknown'}"
     )
-
-
-def local_population(frame, axis):
-    choices = sorted(frame["Employment"].dropna().unique().tolist())
-    chosen = st.multiselect(
-        "Employment status for this axis (empty = all)", choices,
-        key=f"{axis}_employment", persist_state="session",
-    )
-    local_scope = "Employment: " + (", ".join(chosen) if chosen else "all, including unanswered")
-    return filter_population(frame, employment=chosen), local_scope
-
-
-def axis_intro(title, question):
-    st.header(title)
-    st.write(question)
-    st.caption("Exploratory starting view — the axis owner still needs to deepen and validate the investigation.")
 
 
 def population_caption(frame, answered_n, scope, extra=""):
@@ -88,24 +73,25 @@ def draw_frequency(frame, table, answered_n, title, scope, top_n=10):
         st.dataframe(table, hide_index=True, width="stretch")
 
 
-def draw_adoption(frame, table, available_n, scope):
-    shown = table.dropna(subset=["share_pct"])
-    used_n = int(shown["answers"].sum())
-    caption = population_caption(frame, used_n, scope, f"Valid AI answers with a known group before the minimum-size rule: n={available_n:,}. Each plotted group has at least 20 answers.")
-    if shown.empty:
-        st.warning("No group meets the minimum of 20 valid AI answers.")
-        st.caption(caption)
-        st.dataframe(table, hide_index=True)
-        return
-    labels = [textwrap.fill(f"{group} (n={int(n)})", 40) for group, n in zip(shown["group"], shown["answers"])]
-    fig, ax = plt.subplots(figsize=(9, max(3.4, .6 * len(shown) + 1)))
-    bars = ax.barh(labels, shown["share_pct"].astype(float), color=ACCENT)
-    ax.bar_label(bars, fmt="%.1f%%", padding=4)
-    ax.set(xlim=(0, 115), xlabel="Known current AI users / valid AI answers within group (%)", title="Reported AI use by profile")
-    ax.spines[["top", "right"]].set_visible(False)
-    fig.text(.02, .01, textwrap.fill(caption, 125), fontsize=8, va="bottom")
-    fig.tight_layout(rect=(0, .2, 1, 1))
-    st.pyplot(fig)
-    plt.close(fig)
-    st.caption(caption)
-    st.dataframe(table, hide_index=True, width="stretch")
+
+def common_population():
+    """The same loading and common filters for the dashboard and future pages."""
+    try:
+        base = get_population()
+    except (OSError, ValueError, RuntimeError) as error:
+        st.error(str(error))
+        st.info("Run: uv run python scripts/download_data.py")
+        st.stop()
+    with st.sidebar:
+        st.header("Common filters")
+        roles = st.multiselect("Role (empty = all)", sorted(base["Role"].dropna().unique().tolist()),
+                              key="global_roles", persist_state="session")
+        experiences = st.multiselect("Experience (empty = all)", EXPERIENCE_LABELS,
+                                    key="global_experience", persist_state="session")
+        st.caption("2026 · France · coding as the primary part of the job. Empty selections include unanswered values.")
+    selected = filter_population(base, roles=roles, experiences=experiences)
+    st.sidebar.caption(f"Selected: {len(selected):,} / {len(base):,} eligible respondents.")
+    if selected.empty:
+        st.warning("No respondents match these filters. Clear a filter to continue.")
+        st.stop()
+    return selected

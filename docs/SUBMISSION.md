@@ -1,20 +1,14 @@
-# Submission and defence checklist
+# Final submission checklist
 
-## Required final deliverables
-- Repository link, with access granted to all members and the trainer.
-- README commands tested from a fresh clone.
-- Technical architecture and genuine exploration notebooks.
-- One main-dashboard screenshot and one axis screenshot, updated after the final group work.
-- If 2025 comparisons are introduced: completed, reviewed harmonisation evidence.
-- Optional deployed URL only after the online app is actually deployed and checked.
+- Share the actual GitHub repository with the four colleagues and the trainer after the owner authorises publication.
+- Review the common core together; then each owner creates the assigned branch and develops their original axis.
+- Merge the completed axes into main and manually check every page and filter.
+- Run the README commands from a fresh WSL clone.
+- Ensure every figure states the population, year, filters and actual answer count.
+- Include the real exploration notebooks and documented technical architecture.
+- Keep data, environments and private French group instructions out of Git.
+- If comparing with 2025, complete and review explicit answer harmonisation first. The current core uses 2026 only.
+- Take the final dashboard screenshot and one axis screenshot after integration.
+- Add a public deployment URL only if the bonus deployment is actually done and checked.
 
-Capture the two final screenshots after the individual analyses have been integrated. A screenshot of the scaffold is not proof that the individual investigations are complete.
-
-## Before merging an axis
-Check the question, population, year, actual answer count, denominator, missing values, multiselect treatment, one alternative explanation or robustness check, and the limits of the conclusion. Start the app and ensure the other views still work. Keep raw data out of Git.
-
-## 20-minute defence
-Use five minutes to show the sponsor message, a filter change, an axis and its population caption. Use the remaining time to explain calculations, architecture, cache, session state and the real Git history. Every member should be able to trace any figure back to its function and source question, not only the view they own. Rehearse a small live change such as changing a displayed category count or adding a documented filter.
-
-## Remaining administrative steps
-The owner must invite the four actual GitHub accounts and the trainer. Review branch permissions if the account plan permits protections for a private repository. No trainer account or group identities have been invented or invited automatically.
+Defence: five-minute demonstration, then fifteen minutes of questions. Every member must explain their own axis and any randomly selected part of the common app, follow a figure back to its source, explain the real commit history and make a small live change.

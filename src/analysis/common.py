@@ -27,12 +27,3 @@ def frequency_table(frame, column, multiple=False):
 def known_rate(frame, column):
     answers = frame[column].dropna()
     return (float(answers.mean()) if len(answers) else None), len(answers)
-
-
-def adoption_by(frame, group_column, minimum=20):
-    valid = frame.dropna(subset=[group_column, "ai_user"])
-    table = valid.groupby(group_column, observed=True)["ai_user"].agg(answers="size", users="sum")
-    table["share_pct"] = table["users"] / table["answers"] * 100
-    table["sufficient_n"] = table["answers"] >= minimum
-    table.loc[~table["sufficient_n"], "share_pct"] = float("nan")
-    return table.rename_axis("group").reset_index(), len(valid)

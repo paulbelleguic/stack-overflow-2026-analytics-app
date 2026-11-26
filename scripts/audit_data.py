@@ -25,7 +25,7 @@ def main():
         raise ValueError(f"Required fields missing: {missing_fields}")
     lines = [
         "# Verified 2026 data audit", "",
-        "This report was generated from the checksum-verified official response CSV and schema. It exports aggregate counts only.", "",
+        "This report was generated from the official response CSV and schema. It exports aggregate counts only.", "",
         f"- Source responses: **{len(raw):,}**; fields: **{len(raw.columns)}**.",
         f"- France: **{raw['Country'].eq('France').sum():,}**.",
         f"- France and `{PRIMARY_CODER}`: **{len(selected):,}**.",
@@ -44,7 +44,7 @@ def main():
     lines += ["", "## Interpretation of coverage", "",
               "The five axes have usable initial answer counts, but counts fall after filtering. Fields inside one axis do not necessarily share an answering population. Missing values may reflect routing or non-response. In particular, a blank matrix-derived current-task list cannot be interpreted as observed non-use for every task.", "",
               "The source schema and archived questionnaire must be checked again when an owner adds a field. Counts in this report describe this fixed 2026 archive, not the French workforce.", "",
-              "Source: Stack Overflow Developer Survey 2026, ODbL 1.0. File hashes and download locations: `config/sources.json`.", ""]
+              "Source: Stack Overflow Developer Survey 2026, ODbL 1.0. Download locations and basic file checks: `src/data.py`.", ""]
     target = ROOT / "docs" / "DATA_AUDIT.md"
     target.write_text("\n".join(lines), encoding="utf-8")
     print(f"Wrote aggregate audit: {target}")

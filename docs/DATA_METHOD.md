@@ -2,7 +2,7 @@
 
 ## Verified 2026 source
 
-The official response CSV has 30,903 rows and 212 fields. The official schema has fields including `column`, `question`, `sub`, `transformation` and `nonmissing`. Both CSVs are stored with Git LFS; the downloader uses `media.githubusercontent.com/media/…` and checks the official SHA-256 fingerprints.
+The official response CSV has 30,903 rows and 212 fields. The official schema has fields including `column`, `question`, `sub`, `transformation` and `nonmissing`. Both CSVs are stored with Git LFS; the downloader uses `media.githubusercontent.com/media/…` and checks the expected CSV headers.
 
 The schema and the [2026 question bank](https://github.com/StackExchange/Survey/tree/releases/2026/questions) are the references for wording and conditional questions. Do not assume an unanswered conditional question means a respondent rejected its premise.
 

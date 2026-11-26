@@ -1,7 +1,6 @@
-"""Download and loading functions, without Streamlit."""
+"""Download and read the official 2026 files, without Streamlit."""
 from pathlib import Path
-import hashlib
-import json
+import csv
 import urllib.error
 import urllib.request
 
@@ -9,50 +8,41 @@ import pandas as pd
 
 ROOT = Path(__file__).resolve().parents[1]
 DATA_DIR = ROOT / "data" / "raw" / "2026"
-MANIFEST = ROOT / "config" / "sources.json"
-
-
-def file_hash(path):
-    digest = hashlib.sha256()
-    with Path(path).open("rb") as stream:
-        for block in iter(lambda: stream.read(1024 * 1024), b""):
-            digest.update(block)
-    return digest.hexdigest()
+SOURCE = "https://media.githubusercontent.com/media/StackExchange/Survey/main/packages/archive/2026/"
+FILES = {"survey_results_public.csv": "ResponseId", "survey_results_schema.csv": "column"}
 
 
 def ensure_data(data_dir=DATA_DIR):
-    """Download missing files and verify their documented official hashes."""
+    """Download absent files; reject empty files or a Git LFS pointer."""
     data_dir = Path(data_dir)
     data_dir.mkdir(parents=True, exist_ok=True)
-    sources = json.loads(MANIFEST.read_text(encoding="utf-8"))
-    for name, info in sources["files"].items():
+    for name, required_column in FILES.items():
         target = data_dir / name
-        if target.exists():
-            if target.stat().st_size == info["bytes"] and file_hash(target) == info["sha256"]:
-                continue
-            raise ValueError(f"Unexpected data file: {target}. Move it aside and download the documented version.")
+        if target.exists() and target.stat().st_size > 0:
+            continue
         temporary = data_dir / (name + ".part")
-        request = urllib.request.Request(info["url"], headers={"User-Agent": "student-so-2026-project"})
         try:
-            with urllib.request.urlopen(request, timeout=90) as response, temporary.open("wb") as output:
-                for block in iter(lambda: response.read(1024 * 1024), b""):
-                    output.write(block)
-        except (OSError, urllib.error.URLError) as error:
+            urllib.request.urlretrieve(SOURCE + name, temporary)
+            with temporary.open(encoding="utf-8-sig", newline="") as stream:
+                header = next(csv.reader(stream), [])
+            if required_column not in header:
+                raise ValueError(f"{name} is not the expected CSV. Use the official Git LFS media URL.")
+            temporary.replace(target)
+        except (OSError, urllib.error.URLError, ValueError) as error:
             temporary.unlink(missing_ok=True)
-            raise RuntimeError(f"Could not download {name}. Check internet access and retry: {error}") from error
-        if temporary.stat().st_size != info["bytes"] or file_hash(temporary) != info["sha256"]:
-            temporary.unlink(missing_ok=True)
-            raise ValueError(f"Download verification failed for {name}. A Git LFS pointer or partial download is not valid data.")
-        temporary.replace(target)
+            raise RuntimeError(f"Could not download {name}: {error}") from error
     return data_dir
 
 
 def load_responses(path=DATA_DIR / "survey_results_public.csv"):
     frame = pd.read_csv(path, low_memory=False)
-    if frame["ResponseId"].isna().any() or not frame["ResponseId"].is_unique:
+    if "ResponseId" not in frame or frame["ResponseId"].isna().any() or not frame["ResponseId"].is_unique:
         raise ValueError("Expected one unique, non-missing ResponseId per 2026 response.")
     return frame
 
 
 def load_schema(path=DATA_DIR / "survey_results_schema.csv"):
-    return pd.read_csv(path)
+    frame = pd.read_csv(path)
+    if not {"column", "question"}.issubset(frame.columns):
+        raise ValueError("The schema does not contain the expected question fields.")
+    return frame
