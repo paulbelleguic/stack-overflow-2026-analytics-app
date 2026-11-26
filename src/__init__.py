@@ -1,1 +1,1 @@
-"""Socle commun du projet."""
+"""Shared project core."""

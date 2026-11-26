@@ -1422,7 +1422,7 @@ wheels = [
 ]
 
 [[package]]
-name = "stack-overflow-2026-ai-app"
+name = "stack-overflow-2026-analytics-app"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [

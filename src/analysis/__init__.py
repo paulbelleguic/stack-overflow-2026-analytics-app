@@ -1,1 +1,1 @@
-"""Calculs indépendants de l'interface, un module par axe."""
+"""Calculations independent from the interface, one module per axis."""

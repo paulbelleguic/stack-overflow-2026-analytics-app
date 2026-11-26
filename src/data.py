@@ -1,4 +1,4 @@
-"""Téléchargement et lecture, sans interface Streamlit."""
+"""Download and loading functions, without Streamlit."""
 from pathlib import Path
 import hashlib
 import json
@@ -21,7 +21,7 @@ def file_hash(path):
 
 
 def ensure_data(data_dir=DATA_DIR):
-    """Télécharge les fichiers absents et vérifie leurs empreintes officielles."""
+    """Download missing files and verify their documented official hashes."""
     data_dir = Path(data_dir)
     data_dir.mkdir(parents=True, exist_ok=True)
     sources = json.loads(MANIFEST.read_text(encoding="utf-8"))

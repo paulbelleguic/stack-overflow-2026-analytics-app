@@ -1,4 +1,4 @@
-"""Dénominateurs explicites pour les questions simples et multiples."""
+"""Explicit denominators for single- and multiple-choice questions."""
 import pandas as pd
 
 
@@ -7,10 +7,10 @@ def valid_answers(frame, column):
 
 
 def frequency_table(frame, column, multiple=False):
-    """Renvoie (table, nombre de répondants ayant renseigné cette colonne).
+    """Return (table, number of respondents answering this field).
 
-    Une modalité n'est comptée qu'une fois par répondant. Pour une colonne issue
-    d'une matrice, le dénominateur est celui de cette colonne, pas de toute la matrice.
+    Count each choice once per respondent. For a field derived from a matrix,
+    use this field's answer denominator, not the full matrix population.
     """
     answered = frame.loc[valid_answers(frame, column), ["ResponseId", column]].copy()
     n_answers = len(answered)

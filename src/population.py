@@ -1,4 +1,4 @@
-"""Définition de la population et variables communes, sans Streamlit."""
+"""Population and shared derived variables, without Streamlit."""
 import pandas as pd
 
 PRIMARY_CODER = "I create code as a primary part of my job"
@@ -13,7 +13,7 @@ NO_AI = "I don’t use AI tools"
 
 
 def ai_status(answer):
-    """Une absence ou une réponse contradictoire reste inconnue, jamais 'non'."""
+    """Missing or contradictory answers remain unknown, never 'no'."""
     if pd.isna(answer) or not str(answer).strip():
         return pd.NA
     choices = {choice.strip() for choice in str(answer).split(";")}
@@ -25,13 +25,13 @@ def ai_status(answer):
 
 
 def prepare_population(responses):
-    """France + création de code comme activité principale du travail; toutes industries."""
+    """France and coding as the primary part of the job, across all industries."""
     frame = responses.loc[
         responses["Country"].eq("France") & responses["CodeMain"].eq(PRIMARY_CODER)
     ].copy()
     frame["survey_year"] = 2026
     years = pd.to_numeric(frame["WorkExp"], errors="coerce")
-    # Règle prudente et documentée : les valeurs hors 0–80 ans restent inconnues.
+    # Documented plausibility rule: experience outside 0–80 years remains unknown.
     frame["experience_years"] = years.where(years.between(0, 80))
     frame["experience_group"] = pd.cut(
         frame["experience_years"], [-1, 2, 5, 10, 20, 80], labels=EXPERIENCE_LABELS

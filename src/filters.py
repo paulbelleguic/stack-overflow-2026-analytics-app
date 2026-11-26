@@ -1,4 +1,4 @@
-"""Filtres partagés et filtre local d'axe, sans Streamlit."""
+"""Shared and axis-level filters, without Streamlit."""
 
 
 def filter_population(frame, roles=None, experiences=None, employment=None):

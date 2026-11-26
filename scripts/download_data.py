@@ -1,4 +1,4 @@
-"""Point d'entrée unique du téléchargement, utilisable depuis un clone neuf."""
+"""Data-download entry point for a fresh clone."""
 from pathlib import Path
 import sys
 
@@ -7,4 +7,4 @@ from src.data import ensure_data
 
 if __name__ == "__main__":
     directory = ensure_data()
-    print(f"Fichiers 2026 vérifiés dans {directory}")
+    print(f"2026 files verified in {directory}")
