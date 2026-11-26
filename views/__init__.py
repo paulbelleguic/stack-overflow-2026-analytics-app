@@ -1,1 +1,1 @@
-"""Six views within one app; no separate servers."""
+"""Presentation of the common dashboard."""
