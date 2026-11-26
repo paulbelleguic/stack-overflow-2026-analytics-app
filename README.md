@@ -26,7 +26,7 @@ uv run streamlit run app.py
 
 Open `http://localhost:8501` in the Windows browser. Stop the app with Ctrl+C. `code .` from Ubuntu opens the project in VS Code with the WSL extension. The Python version is 3.12; uv can install it if necessary.
 
-The downloader uses the official Git LFS media URLs, not raw pointers. It downloads absent CSVs into ignored `data/raw/2026/`, reports errors, and checks expected CSV headers. No SHA-256 verification, automated test suite or GitHub Actions workflow is included. About 123 MB is needed for the data, plus the environment. The app uses the same downloader if the files are missing at startup.
+The downloader uses the official Git LFS media URLs, not raw pointers. It downloads absent CSVs into ignored `data/raw/2026/`, reports errors, and checks expected CSV headers. About 123 MB is needed for the data, plus the environment. The app uses the same downloader if the files are missing at startup.
 
 ## Current files
 

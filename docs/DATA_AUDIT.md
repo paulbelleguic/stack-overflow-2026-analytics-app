@@ -1,6 +1,6 @@
 # Verified 2026 data audit
 
-This report was generated from the checksum-verified official response CSV and schema. It exports aggregate counts only.
+This report was generated from the official response CSV and schema. It exports aggregate counts only.
 
 - Source responses: **30,903**; fields: **212**.
 - France: **794**.
@@ -36,4 +36,4 @@ The five axes have usable initial answer counts, but counts fall after filtering
 
 The source schema and archived questionnaire must be checked again when an owner adds a field. Counts in this report describe this fixed 2026 archive, not the French workforce.
 
-Source: Stack Overflow Developer Survey 2026, ODbL 1.0. File hashes and download locations: `config/sources.json`.
+Source: Stack Overflow Developer Survey 2026, ODbL 1.0. Download locations and basic file checks: `src/data.py`.
