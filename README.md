@@ -12,7 +12,7 @@ This version contains the common data loading, population, shared logic, filters
 
 On Windows, use **Ubuntu in WSL**, not Docker Desktop's WSL distribution. Open Ubuntu, or run `wsl -d Ubuntu` from PowerShell. Keep the project under the Linux home directory and recreate the environment there; do not copy a Windows `.venv`.
 
-Prerequisites inside Ubuntu: Git and [uv](https://docs.astral.sh/uv/getting-started/installation/). Once the repository has been published and access granted:
+Prerequisites inside Ubuntu: Git and [uv](https://docs.astral.sh/uv/getting-started/installation/). After the owner has granted repository access:
 
 ```bash
 mkdir -p ~/projects

@@ -14,7 +14,7 @@ Checked on 26 November 2026. The current version contains the common core only; 
 
 ## Still to do
 - Review and agree on the common core together; assign the five real owners.
-- Obtain approval for the first GitHub push and invite the members and trainer. A remote GitHub clone cannot yet be verified because no source has been pushed.
+- Complete access for all members and the trainer. Publication was approved and main was pushed on 27 November 2026. A fresh clone of the private GitHub repository was checked in Ubuntu: uv sync --locked, the official downloader and preparation of the 628 eligible respondents all succeeded. Individual axes remain to be developed.
 - Each owner creates their own branch from up-to-date main, then their own notebook, calculations, controls and page.
 - Integrate the finished branches, check the combined six-page app and create the final screenshots.
 - Re-run any newly created notebooks and the shared audit in the group's chosen notebook environment as the analysis evolves. The retained shared notebook was executed before the WSL migration; its data-loading functions and population have since been checked directly in Ubuntu.
